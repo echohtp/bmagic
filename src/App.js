@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./styles.css";
+import "./index.css";
 import { Magic } from "magic-sdk";
 import { SolanaExtension } from "@magic-ext/solana";
 import * as web3 from "@solana/web3.js";
@@ -38,7 +38,7 @@ export default function App() {
   };
 
   const getBalance = async (pubKey) => {
-    connection.getBalance(pubKey).then((bal) => setBalance(bal / 1000000000));
+    connection.getBalance(pubKey).then((bal) => setBalance(bal / web3.LAMPORTS_PER_SOL ));
   };
 
   const requestSol = async () => {
@@ -103,8 +103,9 @@ export default function App() {
         });
       }
     });
-  }, [isLoggedIn]);
+  }, [isLoggedIn, getBalance]);
 
+  console.log(userMetadata)
   return (
     <div className="App">
       {!isLoggedIn ? (
@@ -123,61 +124,39 @@ export default function App() {
         </div>
       ) : (
         <div>
-          <div className="container">
-            <h1>Current user: {userMetadata.email}</h1>
-            <button onClick={logout}>Logout</button>
+          <div class="navbar bg-base-100">
+            <div class="flex-1">
+              <a class="btn btn-ghost normal-case text-xl">Banana Magic</a>
+            </div>
+            <div class="flex-none">
+              <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                  <div class="w-10 rounded-full">
+                    <img src="https://placeimg.com/80/80/people" />
+                  </div>
+                </label>
+                <ul tabindex="0" class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+                  <li><a>
+                    {userMetadata.email}
+                    </a>
+                  </li>
+                  <li><a>
+                    {userMetadata.publicAddress?.slice(0,4) + "..." + userMetadata.publicAddress?.slice(-4)}
+                    </a>
+                  </li>
+                  <li><a onClick={()=>{}}>{balance} SOL</a></li>
+                  <li><a onClick={()=>{magic.user.showSettings()}}>Settings</a></li>
+                  <li><a onClick={()=>logout()}>Logout</a></li>
+                </ul>
+              </div>
+            </div>
           </div>
-          <div className="container">
+          <div className="container text-center py-4">
+            <h1>Current user: {userMetadata.email}</h1>
+          </div>
+          <div className="container text-center py-4" >
             <h1>Solana address</h1>
             <div className="info">{userMetadata.publicAddress}</div>
-          </div>
-          <div className="container">
-            <h1>Solana Balance</h1>
-            <div className="info">{balance} SOL</div>
-            <button onClick={()=>{
-              magic.user.showSettings().then((user) => {})
-
-            }}> Show Wallet </button>
-            <button onClick={requestSol} disabled={disabled}>
-              Get 1 Test SOL
-            </button>
-            {disabled && <div>Requesting airdrop...</div>}
-          </div>
-          <div className="container">
-            <h1>Send Transaction</h1>
-            {txHash ? (
-              <div>
-                <div>Send transaction success</div>
-                <div className="info">{txHash}</div>
-              </div>
-            ) : sendingTransaction ? (
-              <div className="sending-status">Sending transaction</div>
-            ) : (
-              <div />
-            )}
-            <input
-              type="text"
-              name="destination"
-              className="full-width"
-              required="required"
-              placeholder="Destination address"
-              onChange={(event) => {
-                setDestinationAddress(event.target.value);
-              }}
-            />
-            <input
-              type="text"
-              name="amount"
-              className="full-width"
-              required="required"
-              placeholder="Amount in LAMPORTS"
-              onChange={(event) => {
-                setSendAmount(event.target.value);
-              }}
-            />
-            <button id="btn-send-txn" onClick={handleSendTransaction}>
-              Sign & Send Transaction
-            </button>
           </div>
         </div>
       )}
