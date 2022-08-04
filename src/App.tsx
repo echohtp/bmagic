@@ -3,10 +3,12 @@ import "./index.css";
 import { Magic } from "magic-sdk";
 import { SolanaExtension } from "@magic-ext/solana";
 import * as web3 from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js"; 
+import { pipe, split, take, join, takeLast, add } from 'ramda'
 
-const rpcUrl = process.env.REACT_APP_RPC_URL;
+const rpcUrl = process.env.REACT_APP_RPC_URL || "";
 
-const magic = new Magic(process.env.REACT_APP_MAGIC_PUBLISHABLE_KEY, {
+const magic = new Magic(process.env.REACT_APP_MAGIC_PUBLISHABLE_KEY || "", {
   extensions: {
     solana: new SolanaExtension({
       rpcUrl
@@ -14,10 +16,25 @@ const magic = new Magic(process.env.REACT_APP_MAGIC_PUBLISHABLE_KEY, {
   }
 });
 
+const addressAvatar = (publicKey: PublicKey) => {
+  const gradient = publicKey.toBytes().reduce(add, 0) % 8
+  return `https://holaplex.com/images/gradients/gradient-${gradient + 1}.png`
+}
+
+interface UserMetadata { 
+  publicAddress: string | null
+  email: string | null
+}
+
+const initMetdata: UserMetadata = {
+  publicAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  email: "USDCOIN@solana.com"
+}
+
 export default function App() {
   const [email, setEmail] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userMetadata, setUserMetadata] = useState({});
+  const [userMetadata, setUserMetadata] = useState<UserMetadata>(initMetdata);
   const [balance, setBalance] = useState(0);
   const [destinationAddress, setDestinationAddress] = useState("");
   const [sendAmount, setSendAmount] = useState(0);
@@ -37,12 +54,13 @@ export default function App() {
     setIsLoggedIn(false);
   };
 
-  const getBalance = async (pubKey) => {
+  const getBalance = async (pubKey: any)  => {
     connection.getBalance(pubKey).then((bal) => setBalance(bal / web3.LAMPORTS_PER_SOL ));
   };
 
   const requestSol = async () => {
     setDisabled(true);
+    //@ts-ignore
     const pubKey = new web3.PublicKey(userMetadata.publicAddress);
     const airdropSignature = await connection.requestAirdrop(
       pubKey,
@@ -54,53 +72,18 @@ export default function App() {
     setDisabled(false);
   };
 
-  const handleSendTransaction = async () => {
-    setSendingTransaction(true);
-    const recipientPubKey = new web3.PublicKey(destinationAddress);
-    const payer = new web3.PublicKey(userMetadata.publicAddress);
-
-    const hash = await connection.getRecentBlockhash();
-
-    let transactionMagic = new web3.Transaction({
-      feePayer: payer,
-      recentBlockhash: hash.blockhash
-    });
-
-    const transaction = web3.SystemProgram.transfer({
-      fromPubkey: payer,
-      toPubkey: recipientPubKey,
-      lamports: sendAmount
-    });
-
-    transactionMagic.add(...[transaction]);
-
-    const serializeConfig = {
-      requireAllSignatures: false,
-      verifySignatures: true
-    };
-
-    const signedTransaction = await magic.solana.signTransaction(
-      transactionMagic,
-      serializeConfig
-    );
-
-    console.log("Signed transaction", signedTransaction);
-
-    const tx = web3.Transaction.from(signedTransaction.rawTransaction);
-    const signature = await connection.sendRawTransaction(tx.serialize());
-    setTxHash(`https://explorer.solana.com/tx/${signature}?cluster=devnet`);
-    setSendingTransaction(false);
-  };
-
   useEffect(() => {
     magic.user.isLoggedIn().then(async (magicIsLoggedIn) => {
-      setIsLoggedIn(magicIsLoggedIn);
       if (magicIsLoggedIn) {
         magic.user.getMetadata().then((user) => {
+          setIsLoggedIn(magicIsLoggedIn);
           setUserMetadata(user);
+          //@ts-ignore
           const pubKey = new web3.PublicKey(user.publicAddress);
           getBalance(pubKey);
         });
+      }else{
+        setIsLoggedIn(magicIsLoggedIn);
       }
     });
   }, [isLoggedIn, getBalance]);
@@ -114,7 +97,7 @@ export default function App() {
           <input
             type="email"
             name="email"
-            required="required"
+            required={true}
             placeholder="Enter your email"
             onChange={(event) => {
               setEmail(event.target.value);
@@ -124,18 +107,18 @@ export default function App() {
         </div>
       ) : (
         <div>
-          <div class="navbar bg-base-100">
-            <div class="flex-1">
-              <a class="btn btn-ghost normal-case text-xl">Banana Magic</a>
+          <div className="navbar bg-base-100">
+            <div className="flex-1">
+              <a className="btn btn-ghost normal-case text-xl">Banana Magic</a>
             </div>
-            <div class="flex-none">
-              <div class="dropdown dropdown-end">
-                <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-                  <div class="w-10 rounded-full">
-                    <img src="https://placeimg.com/80/80/people" />
+            <div className="flex-none">
+              <div className="dropdown dropdown-end">
+                <label tab-index="0" className="btn btn-ghost btn-circle avatar">
+                  <div className="w-10 rounded-full">
+                    <img src={ userMetadata.publicAddress ? addressAvatar(new PublicKey(userMetadata.publicAddress)) : ""} />
                   </div>
                 </label>
-                <ul tabindex="0" class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+                <ul tab-index="0" className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
                   <li><a>
                     {userMetadata.email}
                     </a>
