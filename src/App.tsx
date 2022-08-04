@@ -59,11 +59,12 @@ export default function App() {
     magic.user.isLoggedIn().then(async (magicIsLoggedIn) => {
       if (magicIsLoggedIn) {
         magic.user.getMetadata().then((user) => {
-          setIsLoggedIn(magicIsLoggedIn);
           setUserMetadata(user);
           //@ts-ignore
           const pubKey = new web3.PublicKey(user.publicAddress);
           getBalance(pubKey);
+        }).then(()=>{
+          setIsLoggedIn(magicIsLoggedIn);
         });
       }else{
         setIsLoggedIn(magicIsLoggedIn);
