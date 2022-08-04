@@ -93,27 +93,27 @@ export default function App() {
         <div>
           <div className="navbar bg-base-100">
             <div className="flex-1">
-              <a className="btn btn-ghost normal-case text-xl">Banana Magic</a>
+              <button className="btn btn-ghost normal-case text-xl">Banana Magic</button>
             </div>
             <div className="flex-none">
               <div className="dropdown dropdown-end">
-                <label tab-index="0" className="btn btn-ghost btn-circle avatar">
+                <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                   <div className="w-10 rounded-full">
-                    <img src={ userMetadata.publicAddress ? addressAvatar(new PublicKey(userMetadata.publicAddress)) : ""} />
+                    <img alt="profile" src={userMetadata.publicAddress ? addressAvatar(new PublicKey(userMetadata.publicAddress)) : "https://placeimg.com/80/80/people"} />
                   </div>
                 </label>
-                <ul tab-index="0" className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
-                  <li><a>
+                <ul tabIndex={0} className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+                  <li><button>
                     {userMetadata.email}
-                    </a>
+                    </button>
                   </li>
-                  <li><a>
+                  <li><button>
                     {userMetadata.publicAddress?.slice(0,4) + "..." + userMetadata.publicAddress?.slice(-4)}
-                    </a>
+                    </button>
                   </li>
-                  <li><a onClick={()=>{}}>{balance} SOL</a></li>
-                  <li><a onClick={()=>{magic.user.showSettings()}}>Settings</a></li>
-                  <li><a onClick={()=>logout()}>Logout</a></li>
+                  <li><button className=""  onClick={()=>{}}>{balance} SOL</button></li>
+                  <li><button onClick={()=>{magic.user.showSettings()}}>Settings</button></li>
+                  <li><button onClick={()=>logout()}>Logout</button></li>
                 </ul>
               </div>
             </div>
