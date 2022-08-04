@@ -27,8 +27,8 @@ interface UserMetadata {
 }
 
 const initMetdata: UserMetadata = {
-  publicAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-  email: "USDCOIN@solana.com"
+  publicAddress: "",
+  email: ""
 }
 
 export default function App() {
@@ -91,6 +91,10 @@ export default function App() {
           <button onClick={login}>Send</button>
         </div>
       ) : (
+        userMetadata.publicAddress === "" ? 
+        <>
+        <div>Loading User Data...</div>
+        </> : 
         <div>
           <div className="navbar bg-base-100">
             <div className="flex-1">
