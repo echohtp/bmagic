@@ -4,7 +4,7 @@ import { Magic } from "magic-sdk";
 import { SolanaExtension } from "@magic-ext/solana";
 import * as web3 from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js"; 
-import { pipe, split, take, join, takeLast, add } from 'ramda'
+import { add } from 'ramda'
 
 const rpcUrl = process.env.REACT_APP_RPC_URL || "";
 
@@ -36,11 +36,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userMetadata, setUserMetadata] = useState<UserMetadata>(initMetdata);
   const [balance, setBalance] = useState(0);
-  const [destinationAddress, setDestinationAddress] = useState("");
-  const [sendAmount, setSendAmount] = useState(0);
-  const [txHash, setTxHash] = useState("");
-  const [sendingTransaction, setSendingTransaction] = useState(false);
-  const [disabled, setDisabled] = useState(false);
+
 
   const connection = new web3.Connection(rpcUrl);
 
@@ -58,19 +54,6 @@ export default function App() {
     connection.getBalance(pubKey).then((bal) => setBalance(bal / web3.LAMPORTS_PER_SOL ));
   };
 
-  const requestSol = async () => {
-    setDisabled(true);
-    //@ts-ignore
-    const pubKey = new web3.PublicKey(userMetadata.publicAddress);
-    const airdropSignature = await connection.requestAirdrop(
-      pubKey,
-      web3.LAMPORTS_PER_SOL
-    );
-
-    await connection.confirmTransaction(airdropSignature);
-    getBalance(pubKey);
-    setDisabled(false);
-  };
 
   useEffect(() => {
     magic.user.isLoggedIn().then(async (magicIsLoggedIn) => {
@@ -86,7 +69,8 @@ export default function App() {
         setIsLoggedIn(magicIsLoggedIn);
       }
     });
-  }, [isLoggedIn, getBalance]);
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn]);
 
   console.log(userMetadata)
   return (
