@@ -98,7 +98,7 @@ export default function App() {
         <div>
           <div className="navbar bg-base-100">
             <div className="flex-1">
-              <button className="btn btn-ghost normal-case text-xl">Banana Magic</button>
+              <button className="btn btn-ghost normal-case text-xl">Magical 👋✨</button>
             </div>
             <div className="flex-none">
               <div className="dropdown dropdown-end">
